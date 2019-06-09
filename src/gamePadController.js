@@ -1,5 +1,8 @@
 'use strict';
 
+const socket = io();
+const AXE_THRESHOLD = 0.1;
+
 let vibrationActuator = null;
 let gamePad = null;
 
@@ -8,12 +11,28 @@ const rAF =
   window.mozRequestAnimationFrame ||
   window.webkitRequestAnimationFrame;
 
+let joystickLY = 0;
+let tmpJoystickLY = 0;
+let joystickRY = 0;
+let tmpJoystickRY = 0;
+
 const buttonHandler = btns => {
-  console.log(btns);
+  //console.log(btns);
 }
 
 const axesHandler = axes => {
-  console.log(axes);
+  joystickLY = axes[1];
+  joystickRY = axes[3];
+
+  if(Math.abs(joystickLY - tmpJoystickLY) > AXE_THRESHOLD) {
+    socket.emit("joystickLY", joystickLY);
+    tmpJoystickLY = joystickLY;
+  }
+
+  if(Math.abs(joystickRY - tmpJoystickRY) > AXE_THRESHOLD) {
+    socket.emit("joystickRY", joystickRY);
+    tmpJoystickRY = joystickRY;
+  }
 }
 
 const update = () => {
